@@ -32,16 +32,20 @@ const App = () => {
     );
     if(allHeld && allSameValue) {
       setTenzies(true)
-      console.log('you won');
+      
     }
   }, [arrayNumbers]);
 
   const rollDice = () => {
-    setArrayNumbers((oldArrayNumbers) =>
-      oldArrayNumbers.map((arrayNumber) => {
-        return arrayNumber.isHeld ? arrayNumber : generateNewDice();
-      })
-    );
+    if(!tenzies) {
+      setArrayNumbers((oldArrayNumbers) =>
+        oldArrayNumbers.map((arrayNumber) => {
+          return arrayNumber.isHeld ? arrayNumber : generateNewDice();
+        }))
+      }else {
+        setTenzies(false);
+        setArrayNumbers(allNewDice())
+      }
   };
 
   const holdDice = (id) => {
@@ -65,6 +69,7 @@ const App = () => {
 
   return (
     <main>
+      {/* instead using tenzies === true we can simply use tensies */}
       {tenzies && <Confetti />}
       <h1 className="title">Tenzies</h1>
       <p className="instructions">
