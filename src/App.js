@@ -2,7 +2,7 @@ import "./styles.css";
 import { useState, useEffect } from "react";
 import Dice from "./components/Dice";
 import { nanoid } from "nanoid";
-import Confetti from 'react-confetti'
+import Confetti from "react-confetti";
 
 const App = () => {
   const generateNewDice = () => {
@@ -23,6 +23,20 @@ const App = () => {
 
   const [arrayNumbers, setArrayNumbers] = useState(allNewDice());
   const [tenzies, setTenzies] = useState(false);
+  const [time, setTime] = useState(0);
+  const [timerOn, setTimerOn] = useState(false);
+
+  useEffect(() => {
+    let intervalId;
+
+    if (timerOn) {
+      intervalId = setInterval(() => {
+        setTime((prevTime) => prevTime + 1);
+      }, 1000);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [timerOn]);
 
   useEffect(() => {
     const allHeld = arrayNumbers.every((arrayNumber) => arrayNumber.isHeld);
@@ -30,22 +44,26 @@ const App = () => {
     const allSameValue = arrayNumbers.every(
       (arrayNumber) => arrayNumber.value === firstValue
     );
-    if(allHeld && allSameValue) {
-      setTenzies(true)
-      
+    if (allHeld && allSameValue) {
+      setTenzies(true);
+      setTimerOn(false);
     }
   }, [arrayNumbers]);
 
   const rollDice = () => {
-    if(!tenzies) {
+    if (!tenzies) {
       setArrayNumbers((oldArrayNumbers) =>
         oldArrayNumbers.map((arrayNumber) => {
           return arrayNumber.isHeld ? arrayNumber : generateNewDice();
-        }))
-      }else {
-        setTenzies(false);
-        setArrayNumbers(allNewDice())
-      }
+        })
+      );
+      setTimerOn(true);
+      setTime(0);
+    } else {
+      setTenzies(false);
+      setArrayNumbers(allNewDice());
+      setTimerOn(false);
+    }
   };
 
   const holdDice = (id) => {
@@ -76,9 +94,10 @@ const App = () => {
         Roll until all dice are the same. Click each die to freeze it at its
         current value between rolls.
       </p>
+      <p>Time Elapsed: {time} seconds</p>
       <div className="dice-container">{newArrayNumbers}</div>
       <button className="roll-dice" onClick={rollDice}>
-        {tenzies === true ? " New Game ": "Roll" }
+        {tenzies === true ? " New Game " : "Roll"}
       </button>
     </main>
   );
